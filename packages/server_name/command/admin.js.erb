@@ -1,0 +1,134 @@
+//Восстановление жизни
+mp.events.addCommand('hp', (player, _, target, hp) => {
+    if (target == undefined || hp == undefined) return player.outputChatBox('/hp [player] [hp]');
+    var p = mp.players.at(target);
+    if (p == null) return player.notify('~r~ID игрока не найден!');
+    p.health = parseInt(hp);
+})
+
+//Восстановление брони
+mp.events.addCommand('arm', (player, _, target, arm) => {
+    if (target == undefined || arm == undefined) return player.outputChatBox('/arm [player] [armour]');
+    var p = mp.players.at(target);
+    if (p == null) return player.notify('~r~ID игрока не найден!');
+    p.armour = parseInt(arm);
+})
+
+//Спавн машины
+mp.events.addCommand('veh', (player, _, id, veh, color1, color2) => {
+    if (id == undefined || veh == undefined) return player.outputChatBox('/veh [id] [model] [color1] [color2]');
+    let target = mp.players.at(id);
+    if (target == null) return player.notify('~r~ID игрока не найден!');
+    let pos;
+    pos = target.position;
+    var adminVeh = mp.vehicles.new(mp.joaat(veh), new mp.Vector3(pos.x + 2, pos.y, pos.z));
+    adminVeh.setColor(parseInt(color1), parseInt(color2));
+    player.dim = player.id;
+    setTimeout(() => {
+        target.putIntoVehicle(adminVeh, 0) // Спавн за водительское место
+    }, 150)
+})
+
+//Восстановление транспорта
+mp.events.addCommand('fixcar', (player, _, id) => {
+    if (id == undefined) {
+        if (!player.vehicle) return player.notify('~r~Вы не в транспорте!');
+        player.vehicle.repair();
+    } else {
+        let target = mp.players.at(id);
+        if (target == null) return player.notify('~r~ID игрока не найден!');
+        target.vehicle.repair();
+    }
+})
+
+//Координаты игрока
+mp.events.addCommand('pos', (player) => {
+    let pos;
+    pos = player.position;
+    rot = player.heading;
+    player.outputChatBox(`X: ${pos.x.toFixed(4)} Y: ${pos.y.toFixed(4)} Z: ${pos.z.toFixed(4)}`);
+    player.outputChatBox(`Head rotate: ${rot.toFixed(4)}`);
+    console.log(`X: ${pos.x.toFixed(2)} Y: ${pos.y.toFixed(2)} Z: ${pos.z.toFixed(2)}`);
+})
+
+//Телепорт по координатам
+mp.events.addCommand('tpc', (player, _, x, y, z) => {
+    if (x == undefined || y == undefined || z == undefined) return player.outputChatBox('/tpc [x] [y] [z]');
+    player.position = new mp.Vector3(parseFloat(x), parseFloat(y), parseFloat(z));
+})
+
+//Погода
+mp.events.addCommand('setw', (player, _, weather) => {
+    if (weather == undefined) return player.outputChatBox('/setw [weather]');
+    mp.world.weather = weather;
+})
+
+//Телепортиртация игрока
+mp.events.addCommand('metp', (player, _, id) => {
+    if (id == undefined) return player.outputChatBox('/metp [id]');
+    let target = mp.players.at(id);
+    if (target == null) return player.notify('~r~ID игрока не найден!');
+    target.dimension = player.dimension;
+    target.position = player.position;
+    player.notify(`~g~ Вы телепортировали ~y~${target.id} ~g~ID`);
+})
+
+//Телепортироваться к игроку
+mp.events.addCommand('goto', (player, _, id) => {
+    if (id == undefined) return player.outputChatBox('/goto [id]');
+    let target = mp.players.at(id);
+    if (target == null) return player.notify('~r~ID игрока не найден!');
+    player.dimension = target.dimension;
+    player.position = target.position;
+    player.notify(`~g~ Вы телепортировались к ~y~${target.id} ~g~ID`);
+})
+
+//Смена дименшина
+mp.events.addCommand('setdim', (player, _, id, dim) => {
+    if (id == undefined || dim == undefined) return player.outputChatBox('/setdim [id] [dim]');
+    let target = mp.players.at(id);
+    if (target == null) return player.notify('~r~ID игрока не найден!');
+    target.dimension = parseInt(dim);
+    player.notify(`~g~ Переход в~y~ ${target.dimension} ~g~дименшин`);
+})
+
+//Спавним оружие в руках
+mp.events.addCommand('gun', (player, _, id, weapon, ammo) => {
+    if (id == undefined || weapon == undefined || ammo == undefined) return player.outputChatBox('/gun [id] [weapon] [ammo]');
+    let target = mp.players.at(id);
+    target.giveWeapon(mp.joaat(`weapon_${weapon}`), parseInt(ammo));
+})
+
+// Проверка дименшина
+mp.events.addCommand('dim', (player) => {
+    player.notify(`Вы в ~r~${player.dimension} ~w~дименшине.`);
+})
+
+// Бан по железу
+mp.events.addCommand('banhd', (player, _, id, reason) => {
+    if (id == undefined || reason == undefined) return player.outputChatBox('/banhd [id] [reason]');
+    let target = mp.players.at(id); // Проверка всех игроков по ID
+    if (target == null) return player.notify('~r~ID игрока не найден!');
+    var message =  _.replace(id, '');
+    mp.server.database.query('INSERT INTO banhwid (admin,player,playerHWID,reason) VALUES (?,?,?,?)', [player.name, target.name, target.serial, message]);
+    mp.players.broadcast(`[A] ${player.name} забанил по железу !{FFFF00}${target.name} !{FFF000} по причине: ${message}`);
+    target.kick();
+})
+
+// Одежда
+mp.events.addCommand('setcloth', (player, _, component, drawable, texture, pallete) => {
+    if (component == undefined || drawable == undefined) return player.outputChatBox('/setcloth [component] [drawable] [texture? [pallete?]]');
+    player.setClothes(parseInt(component), parseInt(drawable), parseInt(texture), parseInt(pallete));
+})
+
+// Удаление машин
+mp.events.addCommand(`delveh`,
+    (player) => {
+        mp.vehicles.forEach(
+            (vehicle) => {
+                vehicle.destroy();
+            }
+        );
+        mp.players.broadcast(`${player.name} Удалил все машины!`);
+    }
+);
