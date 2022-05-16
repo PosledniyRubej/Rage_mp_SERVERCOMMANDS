@@ -148,10 +148,10 @@ mp.events.addCommand('clshape', (player, _, namez, red, green, blue, alpha, colr
 mp.events.addCommand('anim', (player, _, dict, name, speed, flag) => {
     player.outputChatBox('/anim [animDic] [animName] [duration] [flag]');
     player.playAnimation(dict, name, speed, flag);
-});
+})
 
 // Прокрут сценарий
 mp.events.addCommand('scanim', (player, _, scenario) => {
     player.outputChatBox('/scanim [scenario]');
     player.playScenario(scenario);
-});
+})
