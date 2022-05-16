@@ -2,7 +2,31 @@
 <br>
 
 [![Typing SVG](https://readme-typing-svg.herokuapp.com?size=40&color=ED15F7&center=true&width=1200&height=150&lines=RageMP+%D0%B0%D0%B4%D0%BC%D0%B8%D0%BD+%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B;(%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%BD%D1%8B%D0%B5+%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B);%D0%B1%D0%B5%D0%B7+%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8+%D1%83%D1%80%D0%BE%D0%B2%D0%BD%D1%8F+%D0%B0%D0%B4%D0%BC%D0%B8%D0%BD%D0%B0)](https://git.io/typing-svg)
-<br>
+<br><br>
+
+
+<h3 align="left">📝Пример для проверки админ уровня:</h3><br>
+
+```
+ mp.events.add("playerChat", (player, input) => {
+  if (input.charAt(0) == "!") {
+    input = input.substr(1);
+    for (com in commandsList) {
+      let args = input.split(" ");
+      if (args[0] == com) {
+        if (player.getAdminlvl() < commandsList[com].adminLvl)
+          return player.outputChatBox(
+            `Для использование данной команды, вы должны быть администратором ${commandsList[com].adminLvl} уровня!`
+          );
+        args = args.slice(1);
+        if ((commandsList[com].args && args.length == 0) || args[0] == "?")
+          return player.outputChatBox(commandsList[com].desc);
+        commandsList[com].func(player, args);
+      }
+    }
+  }
+});
+```
 
 <h3 align="left">⚙️Краткая инструкция:</h3>
 <p align="left">
